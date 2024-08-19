@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 public class Controller {
@@ -24,9 +25,9 @@ public class Controller {
     private URI generateURI(String timeFrame, String numCalories, String diet, String exclusions) {
         return UriComponentsBuilder.fromHttpUrl(urlBase + urlMealPlan)
                                    .queryParam("timeFrame", timeFrame)
-                                   .queryParam("targetCalories", numCalories)
-                                   .queryParam("diet", diet)
-                                   .queryParam("exclude", exclusions)
+                                   .queryParamIfPresent("targetCalories", Optional.ofNullable(numCalories))
+                                   .queryParamIfPresent("diet", Optional.ofNullable(diet))
+                                   .queryParamIfPresent("exclude", Optional.ofNullable(exclusions))
                                    .queryParam("apiKey", apiKey)
                                    .build()
                                    .toUri();
@@ -38,6 +39,7 @@ public class Controller {
         RestTemplate rt = new RestTemplate();
 
         URI uri = generateURI("week", numCalories, diet, exclusions);
+        //System.out.println(uri);
 
         return rt.getForEntity(uri, WeekResponse.class);
     }
